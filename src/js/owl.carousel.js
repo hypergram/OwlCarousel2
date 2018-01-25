@@ -52,7 +52,7 @@
 		this._plugins = {};
 
 		/**
-		 * Currently suppressed events to prevent them from beeing retriggered.
+		 * Currently suppressed events to prevent them from being retriggered.
 		 * @protected
 		 */
 		this._supress = {};
@@ -330,12 +330,13 @@
 
 			repeat /= 2;
 
-			while (repeat--) {
+			while (repeat > 0) {
 				// Switch to only using appended clones
 				clones.push(this.normalize(clones.length / 2, true));
 				append = append + items[clones[clones.length - 1]][0].outerHTML;
 				clones.push(this.normalize(items.length - 1 - (clones.length - 1) / 2, true));
 				prepend = items[clones[clones.length - 1]][0].outerHTML + prepend;
+				repeat -= 1;
 			}
 
 			this._clones = clones;
@@ -430,8 +431,8 @@
 			this.$stage.children('.active').removeClass('active');
 			this.$stage.children(':eq(' + matches.join('), :eq(') + ')').addClass('active');
 
+			this.$stage.children('.center').removeClass('center');
 			if (this.settings.center) {
-				this.$stage.children('.center').removeClass('center');
 				this.$stage.children().eq(this.current()).addClass('center');
 			}
 		}
@@ -1028,12 +1029,14 @@
 			maximum = this._clones.length / 2 + this._items.length - 1;
 		} else if (settings.autoWidth || settings.merge) {
 			iterator = this._items.length;
-			reciprocalItemsWidth = this._items[--iterator].width();
-			elementWidth = this.$element.width();
-			while (iterator--) {
-				reciprocalItemsWidth += this._items[iterator].width() + this.settings.margin;
-				if (reciprocalItemsWidth > elementWidth) {
-					break;
+			if (iterator) {
+				reciprocalItemsWidth = this._items[--iterator].width();
+				elementWidth = this.$element.width();
+				while (iterator--) {
+					reciprocalItemsWidth += this._items[iterator].width() + this.settings.margin;
+					if (reciprocalItemsWidth > elementWidth) {
+						break;
+					}
 				}
 			}
 			maximum = iterator + 1;
@@ -1152,6 +1155,13 @@
 			coordinate = this._coordinates[newPosition] || 0;
 		}
 
+		if(!this.settings.loop) {
+			// Don't leave empty space at end of the carousel
+			var minCoordinate = this._width - this.$stage.width() + this.settings.margin;
+			if(coordinate < minCoordinate)
+				coordinate = minCoordinate;
+		}
+		
 		coordinate = Math.ceil(coordinate);
 
 		return coordinate;
@@ -1408,7 +1418,7 @@
 		this.$stage.unwrap();
 		this.$stage.children().contents().unwrap();
 		this.$stage.children().unwrap();
-
+		this.$stage.remove();
 		this.$element
 			.removeClass(this.options.refreshClass)
 			.removeClass(this.options.loadingClass)
