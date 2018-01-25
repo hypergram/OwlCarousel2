@@ -1155,6 +1155,13 @@
 			coordinate = this._coordinates[newPosition] || 0;
 		}
 
+		if(!this.settings.loop) {
+			// Don't leave empty space at end of the carousel
+			var minCoordinate = this._width - this.$stage.width() + this.settings.margin;
+			if(coordinate < minCoordinate)
+				coordinate = minCoordinate;
+		}
+		
 		coordinate = Math.ceil(coordinate);
 
 		return coordinate;

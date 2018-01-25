@@ -1,6 +1,6 @@
 /**
  * Owl Carousel v2.3.0
- * Copyright 2013-2017 David Deutsch
+ * Copyright 2013-2018 David Deutsch
  * Licensed under  ()
  */
 /**
@@ -1160,6 +1160,13 @@
 			coordinate = this._coordinates[newPosition] || 0;
 		}
 
+		if(!this.settings.loop) {
+			// Don't leave empty space at end of the carousel
+			var minCoordinate = this._width - this.$stage.width() + this.settings.margin;
+			if(coordinate < minCoordinate)
+				coordinate = minCoordinate;
+		}
+		
 		coordinate = Math.ceil(coordinate);
 
 		return coordinate;
@@ -2943,7 +2950,8 @@
 	 * @protected
 	 */
 	Navigation.prototype.destroy = function() {
-		var handler, control, property, override;
+		var handler, control, property, override, settings;
+		settings = this._core.settings;
 
 		for (handler in this._handlers) {
 			this.$element.off(handler, this._handlers[handler]);
